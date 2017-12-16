@@ -22,6 +22,7 @@ public class MainActivity extends Activity {
     private static boolean bsoundLoaded;
     private static int soundIdBoyp;
     private static int soundIdBounce;
+    private static int soundIdSwipe;
     private static float volume;
 
     public static ArrayList<DisplayObject> DisplayObjectList = new ArrayList<DisplayObject>();
@@ -76,11 +77,10 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Load sound file (destroy.wav) into SoundPool.
+        // Load sound files into SoundPool.
         this.soundIdBoyp = this.soundPool.load(this, R.raw.boyp2, 1);
-
-        // Load sound file (gun.wav) into SoundPool.
         this.soundIdBounce = this.soundPool.load(this, R.raw.bounce, 1);
+        this.soundIdSwipe = this.soundPool.load(this, R.raw.swipe, 1);
 
         // --------------------------------------- Objects to display
         Context mContext = getApplicationContext();
@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
 
     } // OnCreate
 
-    // When users click on the shape
+    // play boyp sound
     public static void playSoundBoyp()  {
         if(bsoundLoaded)  {
             float leftVolumn = volume;
@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    // When shapes bounce
+    // play bounce sound
     public static void playSoundBounce()  {
         if(bsoundLoaded)  {
             float leftVolumn = volume;
@@ -120,6 +120,17 @@ public class MainActivity extends Activity {
 
             // Play sound objects destroyed. Returns the ID of the new stream.
             int streamId = soundPool.play(soundIdBounce,leftVolumn, rightVolumn, 1, 0, 1f);
+        }
+    }
+
+    // play bounce sound
+    public static void playSoundSwipe()  {
+        if(bsoundLoaded)  {
+            float leftVolumn = volume;
+            float rightVolumn = volume;
+
+            // Play sound objects destroyed. Returns the ID of the new stream.
+            int streamId = soundPool.play(soundIdSwipe,leftVolumn, rightVolumn, 1, 0, 1f);
         }
     }
 
