@@ -15,6 +15,9 @@ import android.view.MotionEvent;
 import static com.twburger.me.poppoppop.MainActivity.playSoundBounce;
 //import static com.twburger.me.poppoppop.MainActivity.playSoundBoyp;
 import static com.twburger.me.poppoppop.MainActivity.DisplayObjectList;
+import static com.twburger.me.poppoppop.MainActivity.playSoundBoyp;
+import static com.twburger.me.poppoppop.MainActivity.playSoundSwipe;
+import static java.lang.Math.abs;
 
 //public class AnimatedView extends ImageView{
 public class AnimatedView extends AppCompatImageView{
@@ -79,6 +82,11 @@ public class AnimatedView extends AppCompatImageView{
 
     String DEBUG_TAG = "POPpopPOP";
 
+    static boolean bMove = false;
+    static DisplayObject displayObject = null;
+    static int lastXpos = -1;
+    static int lastYpos = -1;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -87,34 +95,53 @@ public class AnimatedView extends AppCompatImageView{
 
         switch (action) {
             case (MotionEvent.ACTION_DOWN):
-                Log.d(DEBUG_TAG, "Action was DOWN");
+                //Log.d(DEBUG_TAG, "Action was DOWN");
 
                 //BitmapDrawable bmd = (BitmapDrawable) getResources().getDrawable(R.drawable.greenball128px);
                 //int level = bmd.getLevel();
-                int x = (int) event.getX();
-                int y = (int) event.getY();
+                lastXpos = (int) event.getX();
+                lastYpos = (int) event.getY();
 
-                DisplayObject displayObject = GetBallClicked(x,y);
+                displayObject = GetBallClicked(lastXpos,lastYpos);
 
                 if(null != displayObject) {
                     displayObject.SetVelocity(0, 0);
-                    //playSoundBoyp();
                     playSoundBounce();
                 }
 
                 return true;
             case (MotionEvent.ACTION_MOVE):
-                Log.d(DEBUG_TAG, "Action was MOVE");
+                //Log.d(DEBUG_TAG, "Action was MOVE");
+                // record the coords and time to calc a new vector
+                bMove = true;
                 return true;
+
             case (MotionEvent.ACTION_UP):
-                Log.d(DEBUG_TAG, "Action was UP");
+                //Log.d(DEBUG_TAG, "Action was UP");
+                // recalculate the vector
+                if( bMove ) {
+                    if (null != displayObject) {
+                        int Xpos = (int) event.getX();
+                        int Ypos = (int) event.getY();
+                        int xV = Xpos - lastXpos;
+                        if(abs(xV) > 20) xV = (xV < 0) ? -20 : 20;
+
+                        int yV = Ypos - lastYpos;
+                        if(abs(yV) > 20) yV = (yV < 0) ? -20 : 20;
+
+                        displayObject.SetVelocity(xV, yV);
+
+                        playSoundSwipe();
+                    }
+                    bMove = false;
+                    displayObject = null;
+                }
                 return true;
             case (MotionEvent.ACTION_CANCEL):
-                Log.d(DEBUG_TAG, "Action was CANCEL");
+                //Log.d(DEBUG_TAG, "Action was CANCEL");
                 return true;
             case (MotionEvent.ACTION_OUTSIDE):
-                Log.d(DEBUG_TAG, "Movement occurred outside bounds " +
-                        "of current screen element");
+                //Log.d(DEBUG_TAG, "Movement occurred outside bounds " + "of current screen element");
                 return true;
             default:
                 return super.onTouchEvent(event);
