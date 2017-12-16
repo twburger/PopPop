@@ -84,19 +84,27 @@ class DisplayObject {
             //objYpos = r.nextInt(Height/2+1);
         } else {
             if ((objXpos + xVelocity > Width - displayObj.getBitmap().getWidth()) || (objXpos < 0)) {
+
                 if (objXpos < 0)
                     objXpos = 1;
+
                 if (objXpos + xVelocity > Width - displayObj.getBitmap().getWidth())
                     objXpos = Width - displayObj.getBitmap().getWidth() - 1;
+
                 xVelocity = xVelocity * -1;
+                
                 b = true;
             }
             if ((objYpos + yVelocity > Height - displayObj.getBitmap().getHeight()) || (objYpos < 0)) {
+
                 if (objYpos < 0)
                     objYpos = 1;
+
                 if (objYpos + yVelocity > Height - displayObj.getBitmap().getHeight())
                     objYpos = Height - displayObj.getBitmap().getHeight() - 1;
-                        yVelocity = yVelocity * -1;
+
+                yVelocity = yVelocity * -1;
+
                 b = true;
             }
 
