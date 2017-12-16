@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/ball_layers">
+
+    <item android:id="@+id/ball0">
+
+        <bitmap
+            android:src="@drawable/greenball128px"
+            android:gravity="center" />
+    </item>
+
+    <item android:id="@+id/ball1">
+
+        <bitmap
+            android:src="@drawable/midblueball128px"
+            android:gravity="center" />
+    </item>
+
+    <item  android:id="@+id/ball2" >
+
+        <bitmap
+            android:src="@drawable/orangeball128px"
+            android:gravity="center" />
+    </item>
+
+    <item android:id="@+id/ball3"
+        android:top="20dp"
+        android:left="20dp">
+
+        <bitmap
+            android:src="@drawable/purpleball128px"
+            android:gravity="center" />
+    </item>
+
+    <item android:id="@+id/ball4"
+        android:top="20dp"
+        android:left="20dp">
+
+        <bitmap
+            android:src="@drawable/redball128px"
+            android:gravity="center" />
+    </item>
+
+    <item android:id="@+id/ball5"
+        android:top="20dp"
+        android:left="20dp">
+
+        <bitmap
+            android:src="@drawable/royalblueball128px"
+            android:gravity="center" />
+    </item>
+
+    <item  android:id="@+id/ball6"
+        android:top="20dp"
+        android:left="20dp">
+
+        <bitmap
+            android:src="@drawable/yellowball128px"
+            android:gravity="center" />
+    </item>
+</layer-list>
