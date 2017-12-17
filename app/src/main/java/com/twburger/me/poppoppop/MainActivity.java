@@ -7,7 +7,8 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
-
+import android.view.Window;
+import android.view.WindowManager;
 import java.util.ArrayList;
 import static com.twburger.me.poppoppop.DisplayObject.MAX_INSTANCES;
 
@@ -29,7 +30,14 @@ public class MainActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
+        // remove title
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
 
         // -------------------------------- SOUND
@@ -50,7 +58,7 @@ public class MainActivity extends Activity {
         this.setVolumeControlStream(streamType);
 
         // For Android SDK >= 21
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) { // LOLLIPOP
 
             AudioAttributes audioAttrib = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_GAME)
@@ -100,10 +108,15 @@ public class MainActivity extends Activity {
             DisplayObjectList.get(6).SetVelocity(18, 12);
         }
 
+        // Pin the app to the screen
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // 21
+            startLockTask();
+        }
+
     } // OnCreate
 
     // play boyp sound
-    public static void playSoundBoyp()  {
+    public static void playSoundWallBounce()  {
         if(bsoundLoaded)  {
             float leftVolumn = volume;
             float rightVolumn = volume;
@@ -113,7 +126,7 @@ public class MainActivity extends Activity {
     }
 
     // play bounce sound
-    public static void playSoundBounce()  {
+    public static void playSoundSelect()  {
         if(bsoundLoaded)  {
             float leftVolumn = volume;
             float rightVolumn = volume;
@@ -124,7 +137,7 @@ public class MainActivity extends Activity {
     }
 
     // play bounce sound
-    public static void playSoundSwipe()  {
+    public static void playSoundMove()  {
         if(bsoundLoaded)  {
             float leftVolumn = volume;
             float rightVolumn = volume;
