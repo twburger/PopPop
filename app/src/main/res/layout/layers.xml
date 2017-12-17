@@ -5,21 +5,27 @@
     android:layout_height="fill_parent"
     android:id="@+id/ball_layers">
 
-    <item android:id="@+id/ball0">
+    <item android:id="@+id/ball0"
+        android:top="20dp"
+        android:left="20dp">
 
         <bitmap
             android:src="@drawable/greenball128px"
             android:gravity="center" />
     </item>
 
-    <item android:id="@+id/ball1">
+    <item android:id="@+id/ball1"
+        android:top="20dp"
+        android:left="20dp">
 
         <bitmap
             android:src="@drawable/midblueball128px"
             android:gravity="center" />
     </item>
 
-    <item  android:id="@+id/ball2" >
+    <item  android:id="@+id/ball2"
+        android:top="20dp"
+        android:left="20dp">
 
         <bitmap
             android:src="@drawable/orangeball128px"
