@@ -9,14 +9,12 @@ import android.graphics.Canvas;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.support.v7.widget.AppCompatImageView;
-import android.util.Log;
 import android.view.MotionEvent;
 
-import static com.twburger.me.poppoppop.MainActivity.playSoundBounce;
-//import static com.twburger.me.poppoppop.MainActivity.playSoundBoyp;
+import static com.twburger.me.poppoppop.MainActivity.playSoundSelect;
+//import static com.twburger.me.poppoppop.MainActivity.playSoundWallBounce;
 import static com.twburger.me.poppoppop.MainActivity.DisplayObjectList;
-import static com.twburger.me.poppoppop.MainActivity.playSoundBoyp;
-import static com.twburger.me.poppoppop.MainActivity.playSoundSwipe;
+import static com.twburger.me.poppoppop.MainActivity.playSoundMove;
 import static java.lang.Math.abs;
 
 //public class AnimatedView extends ImageView{
@@ -45,7 +43,7 @@ public class AnimatedView extends AppCompatImageView{
         int wd = this.getWidth();
         int ht = this.getHeight();
         for( DisplayObject d : DisplayObjectList){
-            d.DispObjDraw(wd, ht);
+            d.DispObjDrawSetPos(wd, ht);
             c.drawBitmap( d.displayObj.getBitmap(), d.GetX(), d.GetY(), null);
         }
 
@@ -106,7 +104,12 @@ public class AnimatedView extends AppCompatImageView{
 
                 if(null != displayObject) {
                     displayObject.SetVelocity(0, 0);
-                    playSoundBounce();
+                    playSoundSelect();
+
+                    if( displayObject.alternativeDisplayObj == displayObject.displayObj)
+                        displayObject.displayObj = displayObject.lastDisplayObj;
+                    else
+                        displayObject.displayObj = displayObject.alternativeDisplayObj;
                 }
 
                 return true;
@@ -123,15 +126,24 @@ public class AnimatedView extends AppCompatImageView{
                     if (null != displayObject) {
                         int Xpos = (int) event.getX();
                         int Ypos = (int) event.getY();
+
+                        // limit the speed to 20 pixels per frame
                         int xV = Xpos - lastXpos;
                         if(abs(xV) > 20) xV = (xV < 0) ? -20 : 20;
 
                         int yV = Ypos - lastYpos;
                         if(abs(yV) > 20) yV = (yV < 0) ? -20 : 20;
 
+                        // modulate the selection so that a press that moves the object slightly will
+                        // still be considered just pressing it
+                        if(xV < 2 ) xV = 0;
+                        if(yV < 2 ) yV = 0;
+
                         displayObject.SetVelocity(xV, yV);
 
-                        playSoundSwipe();
+                        // if the object was not moved do not play the sound
+                        if( !( (yV == 0 ) && (xV == 0 ) ) )
+                            playSoundMove();
                     }
                     bMove = false;
                     displayObject = null;
