@@ -5,7 +5,7 @@ import android.graphics.drawable.BitmapDrawable;
 
 import java.util.ArrayList;
 
-import static com.twburger.me.poppoppop.MainActivity.playSoundBoyp;
+import static com.twburger.me.poppoppop.MainActivity.playSoundWallBounce;
 
 /**
  * Created by me on 16/12/17.
@@ -20,30 +20,34 @@ class DisplayObject {
     private int yVelocity = 0;
     private static int DisplayObjInstance = -1;
     final static int MAX_INSTANCES = 7;
-    private static ArrayList<BitmapDrawable> ball_list = new ArrayList<BitmapDrawable>();
-    private int ThisBallInstance = -1;
+    private static ArrayList<BitmapDrawable> draw_list = new ArrayList<BitmapDrawable>();
+    private int ThisDispObjInstance = -1;
 
     BitmapDrawable displayObj = null;
+    BitmapDrawable lastDisplayObj = null;
+    BitmapDrawable alternativeDisplayObj = null;
 
     int getInstance() {
-        return ThisBallInstance;
+        return ThisDispObjInstance;
     }
 
     public DisplayObject(Context context )  {
 
         if (DisplayObjInstance == -1) {
-            ball_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.greenball128px));
-            ball_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.midblueball128px));
-            ball_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.orangeball128px));
-            ball_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.purpleball128px));
-            ball_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.redball128px));
-            ball_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.royalblueball128px));
-            ball_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.yellowball128px));
+            draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.greenball128px));
+            draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.midblueball128px));
+            draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.orangeball128px));
+            draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.purpleball128px));
+            draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.redball128px));
+            draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.royalblueball128px));
+            draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.yellowball128px));
             DisplayObjInstance = 0;
         }
 
-        displayObj = ball_list.get(DisplayObjInstance);
-        ThisBallInstance = DisplayObjInstance;
+        lastDisplayObj = displayObj = draw_list.get(DisplayObjInstance);
+        alternativeDisplayObj = (BitmapDrawable) context.getResources().getDrawable(R.drawable.starpink128px);
+
+        ThisDispObjInstance = DisplayObjInstance;
         DisplayObjInstance++;
         if (DisplayObjInstance >= MAX_INSTANCES)
             DisplayObjInstance = 0;
@@ -71,7 +75,7 @@ class DisplayObject {
         return objYpos;
     }
 
-    public void DispObjDraw(int Width, int Height) {
+    public void DispObjDrawSetPos(int Width, int Height) {
 
         boolean b = false;
 
@@ -92,7 +96,7 @@ class DisplayObject {
                     objXpos = Width - displayObj.getBitmap().getWidth() - 1;
 
                 xVelocity = xVelocity * -1;
-                
+
                 b = true;
             }
             if ((objYpos + yVelocity > Height - displayObj.getBitmap().getHeight()) || (objYpos < 0)) {
@@ -112,7 +116,7 @@ class DisplayObject {
             objYpos += yVelocity;
 
             if (b) {
-                playSoundBoyp();
+                playSoundWallBounce();
             }
         }
     }
