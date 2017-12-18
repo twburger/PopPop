@@ -23,9 +23,12 @@ class DisplayObject {
     private static ArrayList<BitmapDrawable> draw_list = new ArrayList<BitmapDrawable>();
     private int ThisDispObjInstance = -1;
 
-    BitmapDrawable displayObj = null;
-    BitmapDrawable lastDisplayObj = null;
-    BitmapDrawable alternativeDisplayObj = null;
+    boolean bIsSelected = false;
+    boolean bIsStopped = false;
+
+    BitmapDrawable displayBMP = null;
+    BitmapDrawable standardDisplayBMP = null;
+    BitmapDrawable alternativeDisplayBMP = null;
 
     int getInstance() {
         return ThisDispObjInstance;
@@ -42,10 +45,11 @@ class DisplayObject {
             draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.royalblueball128px));
             draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.yellowball128px));
             DisplayObjInstance = 0;
+            bIsSelected = false;
         }
 
-        lastDisplayObj = displayObj = draw_list.get(DisplayObjInstance);
-        alternativeDisplayObj = (BitmapDrawable) context.getResources().getDrawable(R.drawable.starpink128px);
+        standardDisplayBMP = displayBMP = draw_list.get(DisplayObjInstance);
+        alternativeDisplayBMP = (BitmapDrawable) context.getResources().getDrawable(R.drawable.starpink128px);
 
         ThisDispObjInstance = DisplayObjInstance;
         DisplayObjInstance++;
@@ -54,7 +58,7 @@ class DisplayObject {
     }
 
     public void SetVelocity(int xV, int yV) {
-        if ((0 == xV && 0 == yV) && (0 == xVelocity && 0 == yVelocity)) {
+        if (-1 == xV && -1 == yV) {
             xVelocity = xVelocity_Orig;
             yVelocity = yVelocity_Orig;
         } else {
@@ -70,52 +74,64 @@ class DisplayObject {
     public int GetX() {
         return objXpos;
     }
-
     public int GetY() {
         return objYpos;
     }
 
-    public void DispObjDrawSetPos(int Width, int Height) {
+    public void SetX(int x) {
+        objXpos = x;
+    }
+    public void SetY(int y) {
+        objYpos = y;
+    }
 
-        boolean b = false;
 
-        if (objXpos < 0 && objYpos < 0) {
-            objXpos = Width / 2;
-            objYpos = Height / 2;
+    public void DispObjDrawSetPos(int Width, int Height, boolean bAddAcceleration ) {
+
+        boolean bHitWall = false;
+
+        if ( (objXpos < -(displayBMP.getBitmap().getWidth()/2) && objYpos < -(displayBMP.getBitmap().getHeight()/2) ) ||
+                (objXpos > Width + (displayBMP.getBitmap().getWidth()/2) && objYpos < Height + (displayBMP.getBitmap().getHeight()/2))
+                ) {
+            objXpos = (Width / 2) + (displayBMP.getBitmap().getWidth()/2);
+            objYpos = (Height / 2) + (displayBMP.getBitmap().getHeight()/2);
             //Random r = new Random();
             //objXpos = r.nextInt(Width/2)+1;
             //r = new Random();
             //objYpos = r.nextInt(Height/2+1);
         } else {
-            if ((objXpos + xVelocity > Width - displayObj.getBitmap().getWidth()) || (objXpos < 0)) {
+            if ((objXpos > Width - (displayBMP.getBitmap().getWidth()/2) || (objXpos < - (displayBMP.getBitmap().getWidth()/2)))) {
 
-                if (objXpos < 0)
-                    objXpos = 1;
+                if (objXpos < 0 - (displayBMP.getBitmap().getWidth()/2))
+                    objXpos =  -(displayBMP.getBitmap().getWidth()/2);
 
-                if (objXpos + xVelocity > Width - displayObj.getBitmap().getWidth())
-                    objXpos = Width - displayObj.getBitmap().getWidth() - 1;
+                if (objXpos + xVelocity > Width - (displayBMP.getBitmap().getWidth()/2))
+                    objXpos = Width - (displayBMP.getBitmap().getWidth()/2) - 1;
 
                 xVelocity = xVelocity * -1;
 
-                b = true;
+                bHitWall = true;
             }
-            if ((objYpos + yVelocity > Height - displayObj.getBitmap().getHeight()) || (objYpos < 0)) {
+            if ((objYpos > Height - (displayBMP.getBitmap().getHeight()/2))
+                    || (objYpos < -(displayBMP.getBitmap().getHeight()/2))) {
 
-                if (objYpos < 0)
-                    objYpos = 1;
+                if (objYpos < 0 - (displayBMP.getBitmap().getHeight()/2))
+                    objYpos = -(displayBMP.getBitmap().getHeight()/2);
 
-                if (objYpos + yVelocity > Height - displayObj.getBitmap().getHeight())
-                    objYpos = Height - displayObj.getBitmap().getHeight() - 1;
+                if (objYpos + yVelocity > Height - (displayBMP.getBitmap().getHeight()/2))
+                    objYpos = Height - (displayBMP.getBitmap().getHeight()/2) - 1;
 
                 yVelocity = yVelocity * -1;
 
-                b = true;
+                bHitWall = true;
             }
 
-            objXpos += xVelocity;
-            objYpos += yVelocity;
+            if( bAddAcceleration ) {
+                objXpos += xVelocity;
+                objYpos += yVelocity;
+            }
 
-            if (b) {
+            if (bHitWall) {
                 playSoundWallBounce();
             }
         }

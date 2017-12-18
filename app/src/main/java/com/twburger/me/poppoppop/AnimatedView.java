@@ -21,6 +21,7 @@ import static java.lang.Math.abs;
 public class AnimatedView extends AppCompatImageView{
     private Handler hndlr;
     private final int FRAME_RATE = 30;
+    private final int MAX_V = 30;
 
     public AnimatedView(Context context, AttributeSet attrs)  {
 
@@ -42,9 +43,10 @@ public class AnimatedView extends AppCompatImageView{
 
         int wd = this.getWidth();
         int ht = this.getHeight();
-        for( DisplayObject d : DisplayObjectList){
-            d.DispObjDrawSetPos(wd, ht);
-            c.drawBitmap( d.displayObj.getBitmap(), d.GetX(), d.GetY(), null);
+        for( DisplayObject d : DisplayObjectList) {
+
+            d.DispObjDrawSetPos(wd, ht, !d.bIsSelected );
+            c.drawBitmap( d.displayBMP.getBitmap(), d.GetX(), d.GetY(), null);
         }
 
         hndlr.postDelayed(r, FRAME_RATE);
@@ -61,8 +63,8 @@ public class AnimatedView extends AppCompatImageView{
         for( DisplayObject d : DisplayObjectList){
             int x = d.GetX();
             int y = d.GetY();
-            int wd = d.displayObj.getBitmap().getWidth();
-            int ht = d.displayObj.getBitmap().getHeight();
+            int wd = d.displayBMP.getBitmap().getWidth();
+            int ht = d.displayBMP.getBitmap().getHeight();
             if( pX > x && pX < x + wd && pY > y && pY < y + ht ) {
                 if( null == dc ) {
                     dc = d;
@@ -80,7 +82,7 @@ public class AnimatedView extends AppCompatImageView{
 
     String DEBUG_TAG = "POPpopPOP";
 
-    static boolean bMove = false;
+    static boolean bSwipe2Restart = false;
     static DisplayObject displayObject = null;
     static int lastXpos = -1;
     static int lastYpos = -1;
@@ -95,59 +97,85 @@ public class AnimatedView extends AppCompatImageView{
             case (MotionEvent.ACTION_DOWN):
                 //Log.d(DEBUG_TAG, "Action was DOWN");
 
-                //BitmapDrawable bmd = (BitmapDrawable) getResources().getDrawable(R.drawable.greenball128px);
-                //int level = bmd.getLevel();
                 lastXpos = (int) event.getX();
                 lastYpos = (int) event.getY();
-
-                displayObject = GetBallClicked(lastXpos,lastYpos);
-
-                if(null != displayObject) {
-                    displayObject.SetVelocity(0, 0);
+                displayObject = GetBallClicked(lastXpos, lastYpos);
+                if (null != displayObject) {
                     playSoundSelect();
-
-                    if( displayObject.alternativeDisplayObj == displayObject.displayObj)
-                        displayObject.displayObj = displayObject.lastDisplayObj;
-                    else
-                        displayObject.displayObj = displayObject.alternativeDisplayObj;
+                    displayObject.bIsSelected = true;
                 }
 
                 return true;
+
             case (MotionEvent.ACTION_MOVE):
                 //Log.d(DEBUG_TAG, "Action was MOVE");
-                // record the coords and time to calc a new vector
-                bMove = true;
+
+                // move the object with the finger
+                if (null != displayObject) {
+                    if( displayObject.bIsSelected ) {
+                        float Xpos = event.getX();
+                        float Ypos = event.getY();
+                        //displayObject.DispObjDrawSetPos((int) Xpos, (int) Ypos, false);
+                        displayObject.SetX((int) Xpos);
+                        displayObject.SetY((int) Ypos);
+
+                        // can not move a stopped object
+                        if (!displayObject.bIsStopped)
+                            bSwipe2Restart = true;
+                    }
+                }
+
                 return true;
 
             case (MotionEvent.ACTION_UP):
                 //Log.d(DEBUG_TAG, "Action was UP");
-                // recalculate the vector
-                if( bMove ) {
-                    if (null != displayObject) {
-                        int Xpos = (int) event.getX();
-                        int Ypos = (int) event.getY();
 
-                        // limit the speed to 20 pixels per frame
-                        int xV = Xpos - lastXpos;
-                        if(abs(xV) > 20) xV = (xV < 0) ? -20 : 20;
+                // if a selection was made
+                if (null != displayObject) {
+                    if (displayObject.bIsSelected) {
+                        if (bSwipe2Restart) {
+                            //int Xpos = (int) event.getX();
+                            //int Ypos = (int) event.getY();
+                            int Xpos = (int) displayObject.GetX();
+                            int Ypos = (int) displayObject.GetY();
 
-                        int yV = Ypos - lastYpos;
-                        if(abs(yV) > 20) yV = (yV < 0) ? -20 : 20;
+                            // limit the speed to 20 pixels per frame
+                            int xV = Xpos - lastXpos;
+                            if (abs(xV) > MAX_V) xV = (xV < 0) ? -MAX_V : MAX_V;
 
-                        // modulate the selection so that a press that moves the object slightly will
-                        // still be considered just pressing it
-                        if(xV < 2 ) xV = 0;
-                        if(yV < 2 ) yV = 0;
+                            int yV = Ypos - lastYpos;
+                            if (abs(yV) > MAX_V) yV = (yV < 0) ? -MAX_V : MAX_V;
 
-                        displayObject.SetVelocity(xV, yV);
-
-                        // if the object was not moved do not play the sound
-                        if( !( (yV == 0 ) && (xV == 0 ) ) )
-                            playSoundMove();
+                            // modulate the selection so that a press that moves the object slightly will
+                            // still be considered just pressing it
+                            if (abs(xV) < 3 && abs(yV) < 3) {
+                                xV = 0;
+                                yV = 0;
+                                displayObject.displayBMP = displayObject.alternativeDisplayBMP;
+                                displayObject.SetVelocity(0, 0); // stop
+                                displayObject.bIsStopped = true;
+                            } else {
+                                displayObject.SetVelocity(xV, yV);
+                                playSoundMove();
+                            }
+                        } else { // tapped but not moved
+                            // if it was stopped restart it with default vector
+                            if (displayObject.bIsStopped) {
+                                displayObject.displayBMP = displayObject.standardDisplayBMP;
+                                displayObject.SetVelocity(-1, -1);  // set to default
+                                displayObject.bIsStopped = false;
+                            } else {
+                                displayObject.displayBMP = displayObject.alternativeDisplayBMP;
+                                displayObject.SetVelocity(0, 0); // stop
+                                displayObject.bIsStopped = true;
+                            }
+                        }
                     }
-                    bMove = false;
-                    displayObject = null;
+                    displayObject.bIsSelected = false;
                 }
+                bSwipe2Restart = false;
+                displayObject = null;
+
                 return true;
             case (MotionEvent.ACTION_CANCEL):
                 //Log.d(DEBUG_TAG, "Action was CANCEL");
