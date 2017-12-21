@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
         // if the list is already built do not redo
         if( !(DisplayObjectList.size() >= MAX_INSTANCES ) ) {
             for (int i = 0; i < MAX_INSTANCES; i++) {
-                DisplayObjectList.add(i, new DisplayObject(mContext));
+                DisplayObjectList.add(i, new DisplayObject(mContext, getResources()));
             }
 
             DisplayObjectList.get(0).SetVelocity(7, 14);
@@ -118,8 +118,8 @@ public class MainActivity extends Activity {
     // play boyp sound
     public static void playSoundWallBounce()  {
         if(bsoundLoaded)  {
-            float leftVolumn = volume;
-            float rightVolumn = volume;
+            float leftVolumn = volume/2;
+            float rightVolumn = volume/2;
             // Play sound of gunfire. Returns the ID of the new stream.
             int streamId = soundPool.play(soundIdBoyp,leftVolumn, rightVolumn, 1, 0, 1f);
         }

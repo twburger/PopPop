@@ -10,9 +10,7 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.MotionEvent;
-
 import static com.twburger.me.poppoppop.MainActivity.playSoundSelect;
-//import static com.twburger.me.poppoppop.MainActivity.playSoundWallBounce;
 import static com.twburger.me.poppoppop.MainActivity.DisplayObjectList;
 import static com.twburger.me.poppoppop.MainActivity.playSoundMove;
 import static java.lang.Math.abs;
@@ -21,7 +19,7 @@ import static java.lang.Math.abs;
 public class AnimatedView extends AppCompatImageView{
     private Handler hndlr;
     private final int FRAME_RATE = 30;
-    private final int MAX_V = 30;
+    private final int MAX_V = 15;
 
     public AnimatedView(Context context, AttributeSet attrs)  {
 
@@ -149,11 +147,14 @@ public class AnimatedView extends AppCompatImageView{
                             // modulate the selection so that a press that moves the object slightly will
                             // still be considered just pressing it
                             if (abs(xV) < 3 && abs(yV) < 3) {
-                                xV = 0;
-                                yV = 0;
-                                displayObject.displayBMP = displayObject.alternativeDisplayBMP;
-                                displayObject.SetVelocity(0, 0); // stop
-                                displayObject.bIsStopped = true;
+                                //xV = 0;
+                                //yV = 0;
+                                //displayObject.displayBMP = displayObject.alternativeDisplayBMP;
+                                //displayObject.SetVelocity(0, 0); // stop
+                                //displayObject.bIsStopped = true;
+
+                                displayObject.rotateColor(getResources());
+
                             } else {
                                 displayObject.SetVelocity(xV, yV);
                                 playSoundMove();
@@ -161,13 +162,16 @@ public class AnimatedView extends AppCompatImageView{
                         } else { // tapped but not moved
                             // if it was stopped restart it with default vector
                             if (displayObject.bIsStopped) {
-                                displayObject.displayBMP = displayObject.standardDisplayBMP;
-                                displayObject.SetVelocity(-1, -1);  // set to default
-                                displayObject.bIsStopped = false;
+                                //displayObject.displayBMP = displayObject.standardDisplayBMP;
+                                //displayObject.ResetVelocity();  // set to default
+                                //displayObject.bIsStopped = false;
                             } else {
-                                displayObject.displayBMP = displayObject.alternativeDisplayBMP;
-                                displayObject.SetVelocity(0, 0); // stop
-                                displayObject.bIsStopped = true;
+
+                                // when clicked make noise and change color
+                                displayObject.rotateColor(getResources());
+
+                                //displayObject.SetVelocity(0, 0); // reset to default vector
+                                //displayObject.bIsStopped = true;
                             }
                         }
                     }
