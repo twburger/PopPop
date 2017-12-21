@@ -26,7 +26,7 @@ class DisplayObject {
     private static int DisplayObjInstance = -1;
 
     final static int MAX_INSTANCES = 7;
-    final static int MAX_COLORS = 7;
+    static int MAX_COLORS = 7;
     final static int MAX_SHAPES = 4;
 
     //private static ArrayList<BitmapDrawable> draw_list = new ArrayList<BitmapDrawable>();
@@ -45,7 +45,8 @@ class DisplayObject {
                     Color.BLUE,
                     Color.CYAN,
                     Color.GREEN,
-                    Color.LTGRAY,
+                    //Color.LTGRAY,
+                    Color.parseColor("purple"),
                     Color.MAGENTA,
                     Color.RED,
                     //Color.WHITE,
@@ -58,6 +59,8 @@ class DisplayObject {
     int getInstance() {
         return ThisDispObjInstance;
     }
+
+    static int shapeAssignmentIncrementer = 0;
 
     public DisplayObject( Context context, Resources r )  {
 
@@ -81,9 +84,14 @@ class DisplayObject {
             bIsSelected = false;
         }
 
+        MAX_COLORS = ObjColors.length;
+
         //standardDisplayBMP = displayBMP = draw_list.get(DisplayObjInstance);
         //alternativeDisplayBMP = (BitmapDrawable) context.getResources().getDrawable(R.drawable.starpink128px);
-        alternativeDisplayBMP = standardDisplayBMP = displayBMP = shape_list.get(0);
+        alternativeDisplayBMP = standardDisplayBMP = displayBMP = shape_list.get(shapeAssignmentIncrementer);
+        shapeAssignmentIncrementer++;
+        if( shapeAssignmentIncrementer >= MAX_SHAPES)
+            shapeAssignmentIncrementer = 0;
 
         ThisDispObjInstance = DisplayObjInstance;
         CurrentShape = 0;

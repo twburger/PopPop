@@ -51,7 +51,7 @@ public class AnimatedView extends AppCompatImageView{
     }
 
     /*
-    Determine what object was selected by determining if the touch was within the objects dimensions
+    Get object selected by determining if the touch was within the objects dimensions
     and the object is the one on top if two or more are in that position
     */
     private DisplayObject GetBallClicked(int pX, int pY) {
