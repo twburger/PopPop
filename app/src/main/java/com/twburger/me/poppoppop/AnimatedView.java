@@ -68,6 +68,7 @@ public class AnimatedView extends AppCompatImageView{
                     dc = d;
                 }
                 else {
+                    // Need to determine which level is being clicked on by using order created
                     if (d.getInstance() > dc.getInstance()) {
                         dc = d;
                     }
