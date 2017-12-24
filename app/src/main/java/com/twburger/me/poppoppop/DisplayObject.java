@@ -5,9 +5,12 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Base64;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static com.twburger.me.poppoppop.MainActivity.playSoundWallBounce;
@@ -17,54 +20,54 @@ import static com.twburger.me.poppoppop.MainActivity.playSoundWallBounce;
  */
 
 class DisplayObject {
+
+    boolean bIsSelected = false;
+    boolean bIsStopped = false;
+
     private int objXpos = -1;
     private int objYpos = -1;
     private int xVelocity_Orig = 0;
     private int yVelocity_Orig = 0;
     private int xVelocity = 0;
     private int yVelocity = 0;
-    private static int DisplayObjInstance = -1;
+    private int iCurrentColor = 0;
+    private int iCurrentShape = 0;
+    private int ThisObjInstance = 0;
+    BitmapDrawable displayBMP = null;
+    //BitmapDrawable standardDisplayBMP = null;
+    //BitmapDrawable alternativeDisplayBMP = null;
 
-    final static int MAX_INSTANCES = 7;
-    static int MAX_COLORS = 7;
-    final static int MAX_SHAPES = 4;
+    final static int MAX_INSTANCES = 8;
+    static int MAX_COLORS = 0;
+    static int MAX_SHAPES = 0;
+    static int ObjInstances = 0;
 
     //private static ArrayList<BitmapDrawable> draw_list = new ArrayList<BitmapDrawable>();
     private static ArrayList<BitmapDrawable> shape_list = new ArrayList<BitmapDrawable>();
-    private int ThisDispObjInstance = -1;
 
-    boolean bIsSelected = false;
-    boolean bIsStopped = false;
-
-    BitmapDrawable displayBMP = null;
-    BitmapDrawable standardDisplayBMP = null;
-    BitmapDrawable alternativeDisplayBMP = null;
-
-    int ObjColors[] = new int[]
+    private static int ObjColors[] = new int[]
             {
                     Color.BLUE,
                     Color.CYAN,
-                    Color.GREEN,
                     //Color.LTGRAY,
-                    Color.parseColor("purple"),
+                    //Color.parseColor("purple"), // does not work on older systems
+                    Color.rgb(128, 64,255),
+                    Color.GREEN,
+                    Color.YELLOW,
                     Color.MAGENTA,
                     Color.RED,
-                    //Color.WHITE,
-                    Color.YELLOW
+                    Color.rgb(32, 200,64)
+                    //Color.WHITE
             };
 
-    int CurrentColor = -1;
-    int CurrentShape = -1;
+    private static int colorAssignmentIncrementer = 0;
+    private static int shapeAssignmentIncrementer = 0;
 
-    int getInstance() {
-        return ThisDispObjInstance;
-    }
-
-    static int shapeAssignmentIncrementer = 0;
+    private static boolean bStaticsAreInitialized = false;
 
     public DisplayObject( Context context, Resources r )  {
 
-        if (DisplayObjInstance == -1) {
+        if (!bStaticsAreInitialized) {
             /*
             draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.greenball128px));
             draw_list.add((BitmapDrawable) context.getResources().getDrawable(R.drawable.midblueball128px));
@@ -77,32 +80,41 @@ class DisplayObject {
 
             shape_list.add(0, (BitmapDrawable) context.getResources().getDrawable(R.drawable.trianglewhite128px));
             shape_list.add(1, (BitmapDrawable) context.getResources().getDrawable(R.drawable.starblue128px));
-            shape_list.add(2, (BitmapDrawable) context.getResources().getDrawable(R.drawable.yellowball128px));
-            shape_list.add(3, (BitmapDrawable) context.getResources().getDrawable(R.drawable.squarewhite128px));
+            shape_list.add(2, (BitmapDrawable) context.getResources().getDrawable(R.drawable.invertedtrianglewhite128px));
+            shape_list.add(3, (BitmapDrawable) context.getResources().getDrawable(R.drawable.yellowball128px));
+            shape_list.add(4, (BitmapDrawable) context.getResources().getDrawable(R.drawable.squarewhite128px));
 
-            DisplayObjInstance = 0;
-            bIsSelected = false;
+            colorAssignmentIncrementer = 0;
+            shapeAssignmentIncrementer = 0;
+
+            MAX_COLORS = ObjColors.length;
+            MAX_SHAPES = shape_list.size();
+
+            bStaticsAreInitialized = true;
         }
 
-        MAX_COLORS = ObjColors.length;
-
-        //standardDisplayBMP = displayBMP = draw_list.get(DisplayObjInstance);
+        //standardDisplayBMP = displayBMP = draw_list.get(DisplayObjColor);
         //alternativeDisplayBMP = (BitmapDrawable) context.getResources().getDrawable(R.drawable.starpink128px);
-        alternativeDisplayBMP = standardDisplayBMP = displayBMP = shape_list.get(shapeAssignmentIncrementer);
+        //alternativeDisplayBMP = standardDisplayBMP = displayBMP = shape_list.get(shapeAssignmentIncrementer);
+
+        displayBMP = shape_list.get(shapeAssignmentIncrementer);
+        iCurrentShape = shapeAssignmentIncrementer;
         shapeAssignmentIncrementer++;
         if( shapeAssignmentIncrementer >= MAX_SHAPES)
             shapeAssignmentIncrementer = 0;
 
-        ThisDispObjInstance = DisplayObjInstance;
-        CurrentShape = 0;
+        changeColor( ObjColors[colorAssignmentIncrementer], r );
+        iCurrentColor = colorAssignmentIncrementer;
+        colorAssignmentIncrementer++;
+        if (colorAssignmentIncrementer >= MAX_INSTANCES)
+            colorAssignmentIncrementer = 0;
 
-        DisplayObjInstance++;
-        if (DisplayObjInstance >= MAX_INSTANCES)
-            DisplayObjInstance = 0;
+        ThisObjInstance = ObjInstances;
+        ObjInstances++;
+    }
 
-        // set a color
-        CurrentColor = ThisDispObjInstance;
-        changeColor( ObjColors[CurrentColor], r );
+    int getInstance() {
+        return ThisObjInstance;
     }
 
     public void SetVelocity(int xV, int yV) {
@@ -119,7 +131,6 @@ class DisplayObject {
             yVelocity = yVelocity_Orig;
     }
 
-
     public int GetX() {
         return objXpos;
     }
@@ -134,92 +145,151 @@ class DisplayObject {
         objYpos = y;
     }
 
-
-    public void DispObjDrawSetPos(int Width, int Height, boolean bAddAcceleration ) {
+    public void DispObjDrawSetPos(int canvasWidth, int canvasHeight, boolean bAddAcceleration ) {
 
         boolean bHitWall = false;
 
-        if ( (objXpos < -(displayBMP.getBitmap().getWidth()/2) && objYpos < -(displayBMP.getBitmap().getHeight()/2) ) ||
-                (objXpos > Width + (displayBMP.getBitmap().getWidth()/2) && objYpos < Height + (displayBMP.getBitmap().getHeight()/2))
-                ) {
-            objXpos = (Width / 2) + (displayBMP.getBitmap().getWidth()/2);
-            objYpos = (Height / 2) + (displayBMP.getBitmap().getHeight()/2);
-            //Random r = new Random();
-            //objXpos = r.nextInt(Width/2)+1;
-            //r = new Random();
-            //objYpos = r.nextInt(Height/2+1);
+        // Get the center point of the bitmap image
+        int bitmapWidthCtr = displayBMP.getBitmap().getWidth() / 2;
+        int bitmapHeightCtr = displayBMP.getBitmap().getHeight() / 2;
+
+        // if the center of the bitmap is past the canvas boundaries reset it to a place in the canvas
+        if ((objXpos < -(bitmapWidthCtr) && objYpos < -(bitmapHeightCtr)) ||
+                (objXpos > canvasWidth + (bitmapHeightCtr) && objYpos < canvasHeight + (bitmapHeightCtr))) {
+
+            objXpos = 0; //(canvasWidth / 2) + (bitmapWidthCtr);
+            objYpos = 0; //(canvasHeight / 2) + (bitmapHeightCtr);
         } else {
-            if ((objXpos > Width - (displayBMP.getBitmap().getWidth()/2) || (objXpos < - (displayBMP.getBitmap().getWidth()/2)))) {
-
-                if (objXpos < 0 - (displayBMP.getBitmap().getWidth()/2))
-                    objXpos =  -(displayBMP.getBitmap().getWidth()/2);
-
-                if (objXpos + xVelocity > Width - (displayBMP.getBitmap().getWidth()/2))
-                    objXpos = Width - (displayBMP.getBitmap().getWidth()/2) - 1;
-
-                xVelocity = xVelocity * -1;
-
-                bHitWall = true;
-            }
-            if ((objYpos > Height - (displayBMP.getBitmap().getHeight()/2))
-                    || (objYpos < -(displayBMP.getBitmap().getHeight()/2))) {
-
-                if (objYpos < 0 - (displayBMP.getBitmap().getHeight()/2))
-                    objYpos = -(displayBMP.getBitmap().getHeight()/2);
-
-                if (objYpos + yVelocity > Height - (displayBMP.getBitmap().getHeight()/2))
-                    objYpos = Height - (displayBMP.getBitmap().getHeight()/2) - 1;
-
-                yVelocity = yVelocity * -1;
-
-                bHitWall = true;
-            }
-
-            if( bAddAcceleration ) {
+            if (bAddAcceleration) {
                 objXpos += xVelocity;
                 objYpos += yVelocity;
-            }
 
-            if (bHitWall) {
-                playSoundWallBounce();
+                // if it hit a wall reverse the vector
+                if ((objXpos > canvasWidth - (bitmapWidthCtr) || (objXpos < -(bitmapWidthCtr)))) {
+
+                    if (objXpos < -bitmapWidthCtr)
+                        objXpos = -(bitmapWidthCtr);
+
+                    if (objXpos + xVelocity > canvasWidth - bitmapWidthCtr)
+                        objXpos = canvasWidth - bitmapWidthCtr - 1;
+
+                    xVelocity = xVelocity * -1;
+
+                    bHitWall = true;
+                }
+
+                if ((objYpos > canvasHeight - bitmapHeightCtr) || (objYpos < -bitmapHeightCtr)) {
+
+                    if (objYpos < -bitmapHeightCtr)
+                        objYpos = -bitmapHeightCtr;
+
+                    if (objYpos + yVelocity > canvasHeight - bitmapHeightCtr)
+                        objYpos = canvasHeight - bitmapHeightCtr - 1;
+
+                    yVelocity = yVelocity * -1;
+
+                    bHitWall = true;
+                }
+
+                if (bHitWall) {
+                    playSoundWallBounce();
+                }
             }
         }
     }
 
-    public void rotateShape(){
+    public void nextShape(){
 
-        CurrentShape++;
-        if( CurrentShape >= MAX_SHAPES )
-            CurrentShape = 0;
-        displayBMP = shape_list.get(CurrentShape);
+        iCurrentShape++;
+        if( iCurrentShape >= MAX_SHAPES )
+            iCurrentShape = 0;
+        displayBMP = shape_list.get(iCurrentShape);
     }
 
     public void changeColor(int iColor, Resources r) {
 
-        Bitmap result = Bitmap.createBitmap(displayBMP.getIntrinsicWidth(),
-                displayBMP.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        int w = displayBMP.getIntrinsicWidth();
+        int h = displayBMP.getIntrinsicHeight();
+
+        Bitmap result = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
 
-        displayBMP.setBounds(0, 0, displayBMP.getIntrinsicWidth(), displayBMP.getIntrinsicHeight());
+        displayBMP.setBounds(0, 0, w, h);
+
         displayBMP.setColorFilter(iColor, PorterDuff.Mode.SRC_IN);
+
         displayBMP.draw(canvas);
+
         displayBMP.setColorFilter(null);
         displayBMP.setCallback(null);
 
         displayBMP = new BitmapDrawable(r, result);
 
+        //result.recycle();
+
         return;
     }
 
-    public void rotateColor(Resources r) {
+    public void nextColor(Resources r) {
 
-        CurrentColor++;
-        if( CurrentColor >= MAX_COLORS ) {
-            rotateShape();
-            CurrentColor = 0;
+        iCurrentColor++;
+        if( iCurrentColor >= MAX_COLORS ) {
+            nextShape();
+            iCurrentColor = 0;
         }
-        changeColor(ObjColors[CurrentColor], r);
+        changeColor(ObjColors[iCurrentColor], r);
 
         return;
     }
+
+    private Bitmap rotate(Bitmap paramBitmap, int rotateAngle)
+    {
+        if (rotateAngle% 360 == 0) {
+            return paramBitmap;
+        }
+        Matrix localMatrix = new Matrix();
+        float w = paramBitmap.getWidth();
+        float h = paramBitmap.getHeight();
+        localMatrix.postTranslate(-w / 2, -h / 2);
+        localMatrix.postRotate(rotateAngle);
+        localMatrix.postTranslate(w/2, h/2);
+        paramBitmap = Bitmap.createBitmap(paramBitmap, 0, 0, (int)w, (int)h, localMatrix, true);
+        //paramBitmap = Bitmap.createScaledBitmap(paramBitmap, (int) w, (int) h, false);
+
+        new Canvas(paramBitmap).drawBitmap(paramBitmap, 0.0F, 0.0F, null);
+        return paramBitmap;
+    }
+
+    public void rotateObject(float degrees, Resources r) {
+
+        displayBMP = new BitmapDrawable(r, rotate(displayBMP.getBitmap(), (int) degrees));
+        return;
+
+
+/*
+        Matrix matrix = new Matrix();
+        matrix.setRotate(degrees);
+
+        Bitmap original = displayBMP.getBitmap();
+
+        int width = original.getWidth();
+        int height = original.getHeight();
+
+        Bitmap rotatedBitmap = Bitmap.createBitmap(original, 0, 0, width, height, matrix, true);
+
+        Canvas canvas = new Canvas(rotatedBitmap);
+
+        //canvas.drawBitmap(rotatedBitmap, 0.0f, 0.0f, null);
+
+        //displayBMP.setBounds(0, 0, width, height);
+        //displayBMP.draw(canvas);
+
+        //displayBMP.invalidateSelf();
+
+        displayBMP = new BitmapDrawable(r, rotatedBitmap);
+
+        return;
+*/
+    }
+
 }

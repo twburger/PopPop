@@ -19,7 +19,8 @@ import static java.lang.Math.abs;
 public class AnimatedView extends AppCompatImageView{
     private Handler hndlr;
     private final int FRAME_RATE = 30;
-    private final int MAX_V = 15;
+    static int MAX_V = 15;
+    static int MIN_V = 3;
 
     public AnimatedView(Context context, AttributeSet attrs)  {
 
@@ -44,6 +45,9 @@ public class AnimatedView extends AppCompatImageView{
         for( DisplayObject d : DisplayObjectList) {
 
             d.DispObjDrawSetPos(wd, ht, !d.bIsSelected );
+
+            //d.DispObjDrawSetPos(wd, ht, false);
+
             c.drawBitmap( d.displayBMP.getBitmap(), d.GetX(), d.GetY(), null);
         }
 
@@ -96,12 +100,15 @@ public class AnimatedView extends AppCompatImageView{
             case (MotionEvent.ACTION_DOWN):
                 //Log.d(DEBUG_TAG, "Action was DOWN");
 
-                lastXpos = (int) event.getX();
-                lastYpos = (int) event.getY();
-                displayObject = GetBallClicked(lastXpos, lastYpos);
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+                displayObject = GetBallClicked(x, y);
                 if (null != displayObject) {
                     playSoundSelect();
                     displayObject.bIsSelected = true;
+
+                    lastXpos = displayObject.GetX() + displayObject.displayBMP.getBitmap().getWidth()/2;
+                    lastYpos = displayObject.GetY() + displayObject.displayBMP.getBitmap().getHeight()/2;
                 }
 
                 return true;
@@ -115,8 +122,8 @@ public class AnimatedView extends AppCompatImageView{
                         float Xpos = event.getX();
                         float Ypos = event.getY();
                         //displayObject.DispObjDrawSetPos((int) Xpos, (int) Ypos, false);
-                        displayObject.SetX((int) Xpos);
-                        displayObject.SetY((int) Ypos);
+                        displayObject.SetX((int) Xpos - displayObject.displayBMP.getBitmap().getWidth()/2);
+                        displayObject.SetY((int) Ypos - displayObject.displayBMP.getBitmap().getHeight()/2);
 
                         // can not move a stopped object
                         if (!displayObject.bIsStopped)
@@ -147,14 +154,14 @@ public class AnimatedView extends AppCompatImageView{
 
                             // modulate the selection so that a press that moves the object slightly will
                             // still be considered just pressing it
-                            if (abs(xV) < 3 && abs(yV) < 3) {
+                            if (abs(xV) < MIN_V && abs(yV) < MIN_V) {
                                 //xV = 0;
                                 //yV = 0;
                                 //displayObject.displayBMP = displayObject.alternativeDisplayBMP;
                                 //displayObject.SetVelocity(0, 0); // stop
                                 //displayObject.bIsStopped = true;
 
-                                displayObject.rotateColor(getResources());
+                                displayObject.nextColor(getResources());
 
                             } else {
                                 displayObject.SetVelocity(xV, yV);
@@ -169,7 +176,9 @@ public class AnimatedView extends AppCompatImageView{
                             } else {
 
                                 // when clicked make noise and change color
-                                displayObject.rotateColor(getResources());
+                                displayObject.nextColor(getResources());
+
+                                //displayObject.rotateObject(36, getResources());
 
                                 //displayObject.SetVelocity(0, 0); // reset to default vector
                                 //displayObject.bIsStopped = true;

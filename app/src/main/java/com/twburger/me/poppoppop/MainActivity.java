@@ -10,7 +10,11 @@ import android.app.Activity;
 import android.view.Window;
 import android.view.WindowManager;
 import java.util.ArrayList;
+import java.util.Random;
+
 import static com.twburger.me.poppoppop.DisplayObject.MAX_INSTANCES;
+import static com.twburger.me.poppoppop.AnimatedView.MAX_V;
+import static com.twburger.me.poppoppop.AnimatedView.MIN_V;
 
 public class MainActivity extends Activity {
 
@@ -94,11 +98,19 @@ public class MainActivity extends Activity {
         Context mContext = getApplicationContext();
 
         // if the list is already built do not redo
+        Random r = new Random();
+        int xV = 0;
+        int yV = 0;
         if( !(DisplayObjectList.size() >= MAX_INSTANCES ) ) {
             for (int i = 0; i < MAX_INSTANCES; i++) {
                 DisplayObjectList.add(i, new DisplayObject(mContext, getResources()));
+                xV = r.nextInt(MAX_V-MIN_V)+MIN_V+1;
+                yV = r.nextInt(MAX_V-MIN_V)+MIN_V+1;
+                //xV = 0; yV = 0;
+                DisplayObjectList.get(i).SetVelocity(xV, yV);
             }
 
+            /*
             DisplayObjectList.get(0).SetVelocity(7, 14);
             DisplayObjectList.get(1).SetVelocity(8, 4);
             DisplayObjectList.get(2).SetVelocity(5, 3);
@@ -106,6 +118,7 @@ public class MainActivity extends Activity {
             DisplayObjectList.get(4).SetVelocity(2, 6);
             DisplayObjectList.get(5).SetVelocity(7, 3);
             DisplayObjectList.get(6).SetVelocity(18, 12);
+            */
         }
 
         // Pin the app to the screen
@@ -118,32 +131,36 @@ public class MainActivity extends Activity {
     // play boyp sound
     public static void playSoundWallBounce()  {
         if(bsoundLoaded)  {
-            float leftVolumn = volume/2;
-            float rightVolumn = volume/2;
+            //float leftVolumn = volume/2;
+            //float rightVolumn = volume/2;
+            float v = volume/2;
             // Play sound of gunfire. Returns the ID of the new stream.
-            int streamId = soundPool.play(soundIdBoyp,leftVolumn, rightVolumn, 1, 0, 1f);
+            //int streamId = soundPool.play(soundIdBoyp,leftVolumn, rightVolumn, 1, 0, 1f);
+            soundPool.play(soundIdBoyp,v, v, 1, 0, 1f);
         }
     }
 
     // play bounce sound
     public static void playSoundSelect()  {
         if(bsoundLoaded)  {
-            float leftVolumn = volume;
-            float rightVolumn = volume;
+            //float leftVolumn = volume;
+            //float rightVolumn = volume;
 
             // Play sound objects destroyed. Returns the ID of the new stream.
-            int streamId = soundPool.play(soundIdBounce,leftVolumn, rightVolumn, 1, 0, 1f);
+            //int streamId = soundPool.play(soundIdBounce,leftVolumn, rightVolumn, 1, 0, 1f);
+            soundPool.play(soundIdBounce,volume, volume, 1, 0, 1f);
         }
     }
 
     // play bounce sound
     public static void playSoundMove()  {
         if(bsoundLoaded)  {
-            float leftVolumn = volume;
-            float rightVolumn = volume;
+            //float leftVolumn = volume;
+            //float rightVolumn = volume;
 
             // Play sound objects destroyed. Returns the ID of the new stream.
-            int streamId = soundPool.play(soundIdSwipe,leftVolumn, rightVolumn, 1, 0, 1f);
+            //int streamId = soundPool.play(soundIdSwipe,leftVolumn, rightVolumn, 1, 0, 1f);
+            soundPool.play(soundIdSwipe, volume, volume, 1, 0, 1f);
         }
     }
 
