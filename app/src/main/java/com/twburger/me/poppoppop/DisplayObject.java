@@ -8,10 +8,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
-import android.util.Base64;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import static com.twburger.me.poppoppop.MainActivity.playSoundWallBounce;
 
@@ -36,6 +35,8 @@ class DisplayObject {
     BitmapDrawable displayBMP = null;
     //BitmapDrawable standardDisplayBMP = null;
     //BitmapDrawable alternativeDisplayBMP = null;
+
+    int rev = 0;
 
     final static int MAX_INSTANCES = 8;
     static int MAX_COLORS = 0;
@@ -65,7 +66,7 @@ class DisplayObject {
 
     private static boolean bStaticsAreInitialized = false;
 
-    public DisplayObject( Context context, Resources r )  {
+    public DisplayObject( Context context, Resources rscs)  {
 
         if (!bStaticsAreInitialized) {
             /*
@@ -103,7 +104,7 @@ class DisplayObject {
         if( shapeAssignmentIncrementer >= MAX_SHAPES)
             shapeAssignmentIncrementer = 0;
 
-        changeColor( ObjColors[colorAssignmentIncrementer], r );
+        changeColor( ObjColors[colorAssignmentIncrementer], rscs);
         iCurrentColor = colorAssignmentIncrementer;
         colorAssignmentIncrementer++;
         if (colorAssignmentIncrementer >= MAX_INSTANCES)
@@ -111,6 +112,11 @@ class DisplayObject {
 
         ThisObjInstance = ObjInstances;
         ObjInstances++;
+
+        //set the rotation revolution counter to a random number between 0 - 100
+        Random r = new Random();
+        rev = r.nextInt(AnimatedView.FRAME_ROTATE_COUNT);
+
     }
 
     int getInstance() {
@@ -244,9 +250,10 @@ class DisplayObject {
 
     private Bitmap rotate(Bitmap paramBitmap, int rotateAngle)
     {
-        if (rotateAngle% 360 == 0) {
+        if (rotateAngle % 360 == 0) {
             return paramBitmap;
         }
+        /*
         Matrix localMatrix = new Matrix();
         float w = paramBitmap.getWidth();
         float h = paramBitmap.getHeight();
@@ -258,6 +265,25 @@ class DisplayObject {
 
         new Canvas(paramBitmap).drawBitmap(paramBitmap, 0.0F, 0.0F, null);
         return paramBitmap;
+        */
+        //Bitmap arrowBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.generic2rb);
+
+        // Create blank bitmap of equal size
+        Bitmap canvasBitmap = paramBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        canvasBitmap.eraseColor(0x00000000);
+
+        // Create canvas
+        Canvas canvas = new Canvas(canvasBitmap);
+
+        // Create rotation matrix
+        Matrix rotateMatrix = new Matrix();
+        rotateMatrix.setRotate(rotateAngle, canvas.getWidth()/2, canvas.getHeight()/2);
+
+        //Draw bitmap onto canvas using matrix
+        canvas.drawBitmap(paramBitmap, rotateMatrix, null);
+
+        //return new BitmapDrawable(canvasBitmap);
+        return canvasBitmap;
     }
 
     public void rotateObject(float degrees, Resources r) {

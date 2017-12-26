@@ -28,6 +28,7 @@ public class MainActivity extends Activity {
     private static int soundIdBoyp;
     private static int soundIdBounce;
     private static int soundIdSwipe;
+    private static int soundIdJump;
     private static float volume;
 
     public static ArrayList<DisplayObject> DisplayObjectList = new ArrayList<DisplayObject>();
@@ -93,6 +94,7 @@ public class MainActivity extends Activity {
         this.soundIdBoyp = this.soundPool.load(this, R.raw.boyp2, 1);
         this.soundIdBounce = this.soundPool.load(this, R.raw.bounce, 1);
         this.soundIdSwipe = this.soundPool.load(this, R.raw.swipe, 1);
+        this.soundIdJump = this.soundPool.load(this, R.raw.jumpshort, 1);
 
         // --------------------------------------- Objects to display
         Context mContext = getApplicationContext();
@@ -161,6 +163,18 @@ public class MainActivity extends Activity {
             // Play sound objects destroyed. Returns the ID of the new stream.
             //int streamId = soundPool.play(soundIdSwipe,leftVolumn, rightVolumn, 1, 0, 1f);
             soundPool.play(soundIdSwipe, volume, volume, 1, 0, 1f);
+        }
+    }
+
+    // play bounce sound
+    public static void playSoundJump()  {
+        if(bsoundLoaded)  {
+            //float leftVolumn = volume;
+            //float rightVolumn = volume;
+
+            // Play sound objects destroyed. Returns the ID of the new stream.
+            //int streamId = soundPool.play(soundIdSwipe,leftVolumn, rightVolumn, 1, 0, 1f);
+            soundPool.play(soundIdJump, volume, volume, 1, 0, 1f);
         }
     }
 
