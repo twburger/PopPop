@@ -1,16 +1,23 @@
 package com.twburger.me.poppoppop;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
+import android.os.Handler;
+import android.view.Menu;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+
 import java.util.ArrayList;
 import java.util.Random;
+//import java.util.concurrent.TimeUnit;
 
 import static com.twburger.me.poppoppop.DisplayObject.MAX_INSTANCES;
 import static com.twburger.me.poppoppop.AnimatedView.MAX_V;
@@ -29,21 +36,35 @@ public class MainActivity extends Activity {
     private static int soundIdBounce;
     private static int soundIdSwipe;
     private static int soundIdJump;
+    private static int soundIdCollide;
     private static float volume;
 
     public static ArrayList<DisplayObject> DisplayObjectList = new ArrayList<DisplayObject>();
+
+    private final int SPLASH_DISPLAY_LENGTH = 3000;
+    private ImageView splashImageView;
+    //boolean splashloading = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        // remove title
+
+        // remove title and make a full screen app so no buttons are available
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_main);
+        // Display the splash screen
+        splashImageView = new ImageView(this);
+        //splashImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        splashImageView.setImageResource(R.drawable.pop);
+        splashImageView.setBackgroundColor(Color.BLACK);
+        setContentView(splashImageView);
+        //splashloading = true;
+
+        //setContentView(R.layout.activity_main);
 
         // -------------------------------- SOUND
         // AudioManager audio settings for adjusting the volume
@@ -95,6 +116,7 @@ public class MainActivity extends Activity {
         this.soundIdBounce = this.soundPool.load(this, R.raw.bounce, 1);
         this.soundIdSwipe = this.soundPool.load(this, R.raw.swipe, 1);
         this.soundIdJump = this.soundPool.load(this, R.raw.jumpshort, 1);
+        soundIdCollide = soundPool.load(this, R.raw.popshort, 1);
 
         // --------------------------------------- Objects to display
         Context mContext = getApplicationContext();
@@ -128,6 +150,15 @@ public class MainActivity extends Activity {
             startLockTask();
         }
 
+        Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            public void run() {
+                //splashloading = false;
+                setContentView(R.layout.activity_main); // run the active layout after the splash
+            }
+
+        }, SPLASH_DISPLAY_LENGTH);
+
     } // OnCreate
 
     // play boyp sound
@@ -135,9 +166,7 @@ public class MainActivity extends Activity {
         if(bsoundLoaded)  {
             //float leftVolumn = volume/2;
             //float rightVolumn = volume/2;
-            float v = volume/2;
-            // Play sound of gunfire. Returns the ID of the new stream.
-            //int streamId = soundPool.play(soundIdBoyp,leftVolumn, rightVolumn, 1, 0, 1f);
+            float v = volume/8;
             soundPool.play(soundIdBoyp,v, v, 1, 0, 1f);
         }
     }
@@ -145,11 +174,6 @@ public class MainActivity extends Activity {
     // play bounce sound
     public static void playSoundSelect()  {
         if(bsoundLoaded)  {
-            //float leftVolumn = volume;
-            //float rightVolumn = volume;
-
-            // Play sound objects destroyed. Returns the ID of the new stream.
-            //int streamId = soundPool.play(soundIdBounce,leftVolumn, rightVolumn, 1, 0, 1f);
             soundPool.play(soundIdBounce,volume, volume, 1, 0, 1f);
         }
     }
@@ -157,11 +181,6 @@ public class MainActivity extends Activity {
     // play bounce sound
     public static void playSoundMove()  {
         if(bsoundLoaded)  {
-            //float leftVolumn = volume;
-            //float rightVolumn = volume;
-
-            // Play sound objects destroyed. Returns the ID of the new stream.
-            //int streamId = soundPool.play(soundIdSwipe,leftVolumn, rightVolumn, 1, 0, 1f);
             soundPool.play(soundIdSwipe, volume, volume, 1, 0, 1f);
         }
     }
@@ -169,14 +188,16 @@ public class MainActivity extends Activity {
     // play bounce sound
     public static void playSoundJump()  {
         if(bsoundLoaded)  {
-            //float leftVolumn = volume;
-            //float rightVolumn = volume;
-
-            // Play sound objects destroyed. Returns the ID of the new stream.
-            //int streamId = soundPool.play(soundIdSwipe,leftVolumn, rightVolumn, 1, 0, 1f);
             soundPool.play(soundIdJump, volume, volume, 1, 0, 1f);
         }
     }
+    // play bounce sound
+    public static void playSoundCollide()  {
+        if(bsoundLoaded)  {
+            soundPool.play(soundIdCollide, volume, volume, 1, 0, 1f);
+        }
+    }
+
 
 } // class MainActivity
 

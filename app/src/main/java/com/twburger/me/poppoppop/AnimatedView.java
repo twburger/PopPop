@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.MotionEvent;
 
+import static com.twburger.me.poppoppop.BitmapObjectCollision.isCollisionDetected;
+import static com.twburger.me.poppoppop.MainActivity.playSoundCollide;
 import static com.twburger.me.poppoppop.MainActivity.playSoundJump;
 import static com.twburger.me.poppoppop.MainActivity.playSoundSelect;
 import static com.twburger.me.poppoppop.MainActivity.DisplayObjectList;
@@ -42,6 +44,7 @@ public class AnimatedView extends AppCompatImageView{
 
     static final int FRAME_ROTATE_COUNT = 100;
     private static final int REDRAW_ROTATION_DEGREES = 18;
+    private static DisplayObject lastCollideObj = null;
 
     protected void onDraw(Canvas c) {
 
@@ -50,13 +53,40 @@ public class AnimatedView extends AppCompatImageView{
 
         for( DisplayObject d : DisplayObjectList) {
 
+            // See if this object is hitting another in the 2-D world and if so change the travel vector
+            if( d.objIsStopped() ) {  //only the stopped object will interact
+                for (DisplayObject o : DisplayObjectList) {
+                    if (o != d && lastCollideObj != o && !o.objIsStopped()) {
+                        // if the objects occupy the same space do not detect a collision
+                        if (isCollisionDetected(d.displayBMP.getBitmap(), d.GetX(), d.GetY(),
+                                o.displayBMP.getBitmap(), o.GetX(), o.GetY())) {
+                            // switch the velocity vectors
+                            //int vX = d.getVelocity(true);
+                            //int vY = d.getVelocity(false);
+                            //d.SetVelocity(o.getVelocity(true), o.getVelocity(false));
+                            //o.SetVelocity(vX, vY);
+                            // only detect one collision per pass
+                            o.SetVelocity(-o.getVelocity(true), -o.getVelocity(false));
+                            playSoundCollide();
+                            lastCollideObj = o;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // rotate the object if it should be in this frame
             d.rev++;
             if(0==(d.rev % FRAME_ROTATE_COUNT)) {
                 d.rotateObject(REDRAW_ROTATION_DEGREES, getResources());
             }
-            d.DispObjDrawSetPos(wd, ht, !d.bIsSelected );
+
+            // Set the point to draw the object, adding a velocity if not a selected obect
+            d.DispObjDrawSetPos(wd, ht, !d.objIsStopped());
 
             c.drawBitmap( d.displayBMP.getBitmap(), d.GetX(), d.GetY(), null);
+
+            // reset the frame count for detemining rotation
             if(0==(d.rev % FRAME_ROTATE_COUNT)) {
                 d.rev = 0;
             }
@@ -115,13 +145,13 @@ public class AnimatedView extends AppCompatImageView{
                 int x = (int) event.getX();
                 int y = (int) event.getY();
                 displayObject = GetBallClicked(x, y);
-                if (null != displayObject) {
+                if (null != displayObject) { // Object selected
                     playSoundSelect();
                     displayObject.bIsSelected = true;
                     lastDisplayObject = displayObject;
                     lastXpos = displayObject.GetX() + displayObject.displayBMP.getBitmap().getWidth()/2;
                     lastYpos = displayObject.GetY() + displayObject.displayBMP.getBitmap().getHeight()/2;
-                } else if ( null != lastDisplayObject ){
+                } else if ( null != lastDisplayObject ){ // move the last selection to this point
                     lastDisplayObject.SetX(x - lastDisplayObject.displayBMP.getBitmap().getWidth()/2);
                     lastDisplayObject.SetY(y - lastDisplayObject.displayBMP.getBitmap().getHeight()/2);
                     playSoundJump();
