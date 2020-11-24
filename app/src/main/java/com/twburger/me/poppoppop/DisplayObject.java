@@ -83,7 +83,7 @@ class DisplayObject {
             shape_list.add(1, (BitmapDrawable) context.getResources().getDrawable(R.drawable.starblue128px));
             shape_list.add(2, (BitmapDrawable) context.getResources().getDrawable(R.drawable.invertedtrianglewhite128px));
             //shape_list.add(3, (BitmapDrawable) context.getResources().getDrawable(R.drawable.yellowball128px));
-            shape_list.add(3, (BitmapDrawable) context.getResources().getDrawable(R.drawable.offsetsmallmidblueball128px));
+            shape_list.add(3, (BitmapDrawable) context.getResources().getDrawable(R.drawable.midblueball128px)); //offsetsmallmidblueball128px));
             shape_list.add(4, (BitmapDrawable) context.getResources().getDrawable(R.drawable.squarewhite128px));
 
             colorAssignmentIncrementer = 0;

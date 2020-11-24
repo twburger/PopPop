@@ -115,8 +115,8 @@ public class MainActivity extends Activity {
         this.soundIdBoyp = this.soundPool.load(this, R.raw.boyp2, 1);
         this.soundIdBounce = this.soundPool.load(this, R.raw.bounce, 1);
         this.soundIdSwipe = this.soundPool.load(this, R.raw.swipe, 1);
-        this.soundIdJump = this.soundPool.load(this, R.raw.jumpshort, 1);
-        soundIdCollide = soundPool.load(this, R.raw.popshort, 1);
+        this.soundIdJump = this.soundPool.load(this, R.raw.jump, 1);
+        soundIdCollide = soundPool.load(this, R.raw.pop, 1);
 
         // --------------------------------------- Objects to display
         Context mContext = getApplicationContext();
